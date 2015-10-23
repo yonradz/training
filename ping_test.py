@@ -33,9 +33,9 @@ class ConnectivityTest:
             self.cisco_switch.send_config_from_file(os.path.join(SNIPPET_DIR, snippet_file))
             ping_result = self.cisco_switch.send_command('ping 192.168.56.2')
 
-            print "=" * 20
+            print "=========================="
             print snippet_file
-            print "-" * 20
+            print "--------------------------"
             print ping_result
 
             if not ping_is_successful(ping_result):
