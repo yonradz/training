@@ -4,6 +4,7 @@ from netmiko import ConnectHandler
 
 USERNAME = os.getenv('SWITCH_USERNAME')
 PASSWORD = os.getenv('SWITCH_PASSWORD')
+HOSTNAME = os.getenv('SWITCH_HOSTNAME')
 SNIPPET_DIR = 'snippets'
 CHECKPOINT_NAME = 'my_checkpoint'
 
@@ -17,9 +18,10 @@ class ConnectivityTest:
     def login(self):
         self.cisco_switch = ConnectHandler(
             device_type='cisco_nxos',
-            ip='n9k1',
+            ip=HOSTNAME,
             username=USERNAME,
-            password=PASSWORD)
+            password=PASSWORD,
+            verbose=False)
 
     def setUp(self):
         self.failure = False
@@ -28,15 +30,21 @@ class ConnectivityTest:
 
     def test_snippets(self):
         for snippet_file in os.listdir(SNIPPET_DIR):
-            self.cisco_switch.send_config_file(snippet_file)
+            self.cisco_switch.send_config_from_file(os.path.join(SNIPPET_DIR, snippet_file))
             ping_result = self.cisco_switch.send_command('ping 192.168.56.2')
+
+            print "=" * 20
+            print snippet_file
+            print "-" * 20
+            print ping_result
 
             if not ping_is_successful(ping_result):
                 self.failure = True
 
     def tearDown(self):
-        self.cisco_switch.send_command('rollback running-config checkpoint ' + self.checkpoint_name)
-        self.cisco_switch.send_command('no checkpoint ' + self.checkpoint_name)
+        self.cisco_switch.send_command('rollback running-config checkpoint ' + CHECKPOINT_NAME)
+        self.cisco_switch.send_command('no checkpoint ' + CHECKPOINT_NAME)
+        self.cisco_switch.disconnect()
 
 
 def run():
@@ -44,9 +52,9 @@ def run():
 
     connTest.setUp() # Set up switch for testing by creating a checkpoint
     connTest.test_snippets() # Apply all config snippets and run ping_test
-    connTest.tearDown() # Rollback to checkpoint created at start of testing
+    connTest.tearDown() # Rollback to checkpoint created at start of testing and disconnect
 
-    if connTest.failue:
+    if connTest.failure:
         sys.exit(FAILURE)
 
     sys.exit(SUCCESS)
