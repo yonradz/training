@@ -2,9 +2,9 @@ import os
 import sys
 from netmiko import ConnectHandler
 
-USERNAME = cisco
-PASSWORD = !cisco123!
-HOSTNAME = 68.170.147.164
+USERNAME = "cisco"
+PASSWORD = "!cisco123!"
+HOSTNAME = "68.170.147.164"
 SNIPPET_DIR = 'snippets'
 CHECKPOINT_NAME = 'my_checkpoint'
 
