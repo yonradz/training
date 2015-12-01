@@ -11,4 +11,4 @@ install:
 
 script:
     - python hostname_test.py
-    # - python ping_test.py
+
